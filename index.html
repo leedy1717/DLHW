@@ -33,8 +33,8 @@
         Participate in
     </button>
 
-    <button onclick="checkAnswer('diminish')">
-        Diminish
+    <button onclick="checkAnswer('eliminate')">
+        eliminate
     </button>
 
     <button onclick="checkAnswer('watch')">
@@ -50,14 +50,14 @@
 
         function checkAnswer(answer) {
 
-            if (answer === "diminish") {
+            if (answer === "eliminate") {
                 document.getElementById("feedback").innerText =
                     "잘했어! Well done!";
             }
 
             else {
                 document.getElementById("feedback").innerText =
-                    "정답이 아니야. The answer is diminish.";
+                    "정답이 아니야. The answer is eliminate.";
             }
 
         }
