@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Voice Generator</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f7fb;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    background:white;
+    width:100%;
+    max-width:800px;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#222;
+}
+
+p{
+    text-align:center;
+    color:#555;
+    margin-bottom:20px;
+}
+
+textarea{
+    width:100%;
+    min-height:180px;
+    resize:vertical;
+    padding:15px;
+    font-size:18px;
+    border:2px solid #d6dce5;
+    border-radius:12px;
+    outline:none;
+}
+
+textarea:focus{
+    border-color:#4f7cff;
+}
+
+.button-group{
+    display:flex;
+    gap:15px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+button{
+    flex:1;
+    min-width:180px;
+    padding:15px;
+    font-size:18px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.us-btn{
+    background:#2563eb;
+    color:white;
+}
+
+.uk-btn{
+    background:#16a34a;
+    color:white;
+}
+
+.stop-btn{
+    background:#dc2626;
+    color:white;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.status{
+    margin-top:20px;
+    text-align:center;
+    font-weight:bold;
+    color:#333;
+    min-height:24px;
+}
+
+.info{
+    margin-top:25px;
+    background:#f8fafc;
+    border-radius:12px;
+    padding:15px;
+    line-height:1.6;
+    color:#444;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>English Voice Generator</h1>
+
+    <p>Enter any English sentence and listen in American or British English.</p>
+
+    <textarea
+        id="textInput"
+        placeholder="Type your sentence here..."></textarea>
+
+    <div class="button-group">
+
+        <button class="us-btn" onclick="speakUS()">
+            🇺🇸 American English
+        </button>
+
+        <button class="uk-btn" onclick="speakUK()">
+            🇬🇧 British English
+        </button>
+
+        <button class="stop-btn" onclick="stopSpeech()">
+            Stop
+        </button>
+
+    </div>
+
+    <div class="status" id="status">
+        Ready
+    </div>
+
+    <div class="info">
+        <strong>Tip</strong><br>
+        Available voices depend on your browser and operating system.<br>
+        Google Chrome is recommended.
+    </div>
+
+</div>
+
+<script>
+let voices = [];
+
+function loadVoices() {
+    voices = speechSynthesis.getVoices();
+}
+
+loadVoices();
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function findUSVoice() {
+    return (
+        voices.find(v =>
+            v.lang.toLowerCase().includes("en-us")
+        ) ||
+        voices.find(v =>
+            v.name.toLowerCase().includes("united states")
+        ) ||
+        voices.find(v =>
+            v.lang.toLowerCase().startsWith("en")
+        )
+    );
+}
+
+function findUKVoice() {
+    return (
+        voices.find(v =>
+            v.lang.toLowerCase().includes("en-gb")
+        ) ||
+        voices.find(v =>
+            v.name.toLowerCase().includes("british")
+        ) ||
+        voices.find(v =>
+            v.name.toLowerCase().includes("united kingdom")
+        ) ||
+        voices.find(v =>
+            v.lang.toLowerCase().startsWith("en")
+        )
+    );
+}
+
+function speak(text, voiceType) {
+
+    if (!text.trim()) {
+        alert("Please enter a sentence.");
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    let selectedVoice;
+
+    if (voiceType === "US") {
+        selectedVoice = findUSVoice();
+        document.getElementById("status").textContent =
+            "Playing American English...";
+    } else {
+        selectedVoice = findUKVoice();
+        document.getElementById("status").textContent =
+            "Playing British English...";
+    }
+
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang;
+    } else {
+        utterance.lang =
+            voiceType === "US" ? "en-US" : "en-GB";
+    }
+
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    utterance.onend = () => {
+        document.getElementById("status").textContent =
+            "Finished";
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+function speakUS() {
+    const text =
+        document.getElementById("textInput").value;
+    speak(text, "US");
+}
+
+function speakUK() {
+    const text =
+        document.getElementById("textInput").value;
+    speak(text, "UK");
+}
+
+function stopSpeech() {
+    speechSynthesis.cancel();
+    document.getElementById("status").textContent =
+        "Stopped";
+}
+</script>
+
+</body>
+</html>
